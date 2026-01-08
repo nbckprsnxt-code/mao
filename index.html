@@ -3,1059 +3,1720 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎁 高级抽奖工具 🎁</title>
+    <title>一口入魂汉堡店</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: "微软雅黑", "Microsoft YaHei", sans-serif;
+            font-family: "Comic Sans MS", "Microsoft YaHei", sans-serif;
         }
 
         body {
-            background-color: #f5f5f5;
+            background-color: #fffbf5;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23fffbf5"/><path d="M0 0L200 200M200 0L0 200" stroke="%23f5e8d0" stroke-width="1" stroke-opacity="0.2"/></svg>');
             padding: 20px;
+            min-height: 100vh;
+            background-attachment: fixed;
         }
 
-        .container {
-            display: flex;
-            gap: 20px;
+        .game-title {
+            text-align: center;
+            color: #d17b49;
+            font-size: 40px;
+            margin: 20px 0 30px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.1);
+            letter-spacing: 2px;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .game-title::after {
+            content: '';
+            display: block;
+            width: 80%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #e8a87c, #d17b49, transparent);
+            margin: 10px auto 0;
+            border-radius: 2px;
+        }
+
+        .game-container {
             max-width: 1200px;
             margin: 0 auto;
-        }
-
-        .left-panel {
-            width: 400px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .right-panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            display: grid;
+            grid-template-columns: 320px 1fr 280px;
+            gap: 30px;
         }
 
         .card {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            padding: 16px;
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 18px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            border: 3px solid #f8e9d1;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease;
         }
 
-        .card-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 16px;
-            color: #333;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 8px;
+        .card:hover {
+            transform: translateY(-3px);
         }
 
-        /* 名单管理样式 */
-        .group-filter {
-            margin-bottom: 10px;
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, #e8a87c, #f9e6d2, #e8a87c);
+            opacity: 0.8;
+        }
+
+        .order-area {
+            text-align: center;
+        }
+
+        .order-area h3 {
+            color: #d17b49;
+            font-size: 22px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 10px;
         }
 
-        .list-box {
+        .customer-card {
+            background-color: #fff8ed;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #f5e0b8;
+            transition: all 0.3s ease;
+        }
+
+        .customer-card-happy {
+            background-color: #f0f8f2;
+            border-color: #c8e6c9;
+        }
+        
+        .customer-card-satisfied {
+            background-color: #fff8ed;
+            border-color: #f5e0b8;
+        }
+        
+        .customer-card-normal {
+            background-color: #fffbf0;
+            border-color: #ffe898;
+        }
+        
+        .customer-card-unhappy {
+            background-color: #fff0f0;
+            border-color: #f5c6c6;
+        }
+        
+        .customer-card-angry {
+            background-color: #fee9e9;
+            border-color: #f0b3b3;
+        }
+
+        .customer-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-color: #f8d698;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            border: 4px solid #ffffff;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .customer {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #d17b49;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        /* 特殊要求标签 */
+        .special-request {
+            display: inline-block;
+            padding: 5px 12px;
+            background-color: #7986cb;
+            color: white;
+            border-radius: 20px;
+            font-size: 14px;
+            margin: 8px 0;
+            animation: pulse 1.5s infinite;
+        }
+
+        .mood-container {
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .mood-emoji {
+            font-size: 28px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .mood-text {
+            font-size: 16px;
+            font-weight: bold;
+            padding: 4px 12px;
+            border-radius: 20px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .mood-text-happy {
+            background-color: #66bb6a;
+        }
+        
+        .mood-text-satisfied {
+            background-color: #9ccc65;
+        }
+        
+        .mood-text-normal {
+            background-color: #ffca28;
+        }
+        
+        .mood-text-unhappy {
+            background-color: #ffa726;
+        }
+        
+        .mood-text-angry {
+            background-color: #ef5350;
+        }
+        
+        .mood-change {
+            font-size: 14px;
+            color: #777;
+            margin-top: 8px;
+            font-style: italic;
+            animation: fadeInOut 3s ease;
+        }
+
+        .timer-container {
+            margin: 15px 0;
+        }
+
+        .timer-label {
+            font-size: 16px;
+            color: #888;
+            margin-bottom: 5px;
+            text-align: left;
+        }
+
+        .timer-bar {
+            height: 12px;
+            background-color: #faf6ed;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 8px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .timer-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #81c784, #43a047, #2e7d32);
+            border-radius: 6px;
+            transition: width 1s linear;
             width: 100%;
-            height: 200px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 8px;
-            overflow-y: auto;
-            margin-bottom: 10px;
+        }
+
+        .timer {
+            font-size: 18px;
+            color: #e57373;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* 难度指示器 */
+        .difficulty-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin: 10px 0;
+        }
+        
+        .difficulty-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #ddd;
+        }
+        
+        .difficulty-dot.active {
+            background-color: #ef5350;
+            animation: pulse 1s infinite;
+        }
+
+        .target-burger {
+            background-color: #fef9f0;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+            min-height: 220px;
+            border: 2px dashed #f0d0a0;
+            position: relative;
+        }
+
+        .target-burger::before {
+            content: '目标汉堡';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background-color: #ffffff;
+            padding: 0 12px;
+            font-size: 14px;
+            color: #d17b49;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+
+        .make-area {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .make-area h3 {
+            color: #43a047;
+            font-size: 22px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .ingredients {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            padding: 20px;
+            background-color: #fef9f0;
+            border-radius: 15px;
+            border: 2px dashed #f0d0a0;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50"><rect width="50" height="50" fill="transparent"/><path d="M0 25L50 25M25 0L25 50" stroke="%23f0d0a0" stroke-width="0.5" stroke-opacity="0.2"/></svg>');
+        }
+
+        .ingredient {
+            padding: 12px 20px;
+            background-color: #66bb6a;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        }
+
+        /* 锁定的食材样式 */
+        .ingredient.locked {
+            background-color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .ingredient.locked:hover {
+            background-color: #ccc;
+            transform: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        }
+        
+        .ingredient.locked::after {
+            content: '🔒';
+            margin-left: 5px;
+            font-size: 12px;
+        }
+
+        .ingredient:hover {
+            background-color: #43a047;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        .ingredient:active {
+            transform: translateY(-1px);
+        }
+
+        .ingredient::before {
+            content: '🍔';
+            font-size: 18px;
+        }
+
+        .ingredient[data-type="面包底"]::before { content: '🍞'; background-color: #f5e0b8; border-radius: 50%; padding: 2px; }
+        .ingredient[data-type="牛肉饼"]::before { content: '🥩'; background-color: #b98860; border-radius: 50%; padding: 2px; }
+        .ingredient[data-type="生菜"]::before { content: '🥬'; background-color: #81c784; border-radius: 50%; padding: 2px; }
+        .ingredient[data-type="番茄"]::before { content: '🍅'; background-color: #ef6c6c; border-radius: 50%; padding: 2px; }
+        .ingredient[data-type="芝士"]::before { content: '🧀'; background-color: #ffe082; border-radius: 50%; padding: 2px; }
+        .ingredient[data-type="洋葱"]::before { content: '🧅'; background-color: #a880c8; border-radius: 50%; padding: 2px; }
+        .ingredient[data-type="酸黄瓜"]::before { content: '🥒'; background-color: #81c784; border-radius: 50%; padding: 2px; }
+        .ingredient[data-type="面包顶"]::before { content: '🍞'; background-color: #f5e0b8; border-radius: 50%; padding: 2px; }
+        .ingredient[data-type="培根"]::before { content: '🥓'; background-color: #d17b49; border-radius: 50%; padding: 2px; }
+        .ingredient[data-type="鸡蛋"]::before { content: '🥚'; background-color: #fff3e0; border-radius: 50%; padding: 2px; }
+        .ingredient[data-type="辣椒"]::before { content: '🌶️'; background-color: #ef5350; border-radius: 50%; padding: 2px; }
+
+        .current-burger {
+            background-color: #fef9f0;
+            padding: 20px;
+            border-radius: 15px;
+            min-height: 220px;
+            margin-bottom: 25px;
+            border: 2px dashed #f0d0a0;
+            position: relative;
+        }
+
+        .current-burger::before {
+            content: '我的汉堡';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background-color: #ffffff;
+            padding: 0 12px;
+            font-size: 14px;
+            color: #43a047;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+
+        .burger-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
         }
 
         .btn-group {
             display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 10px;
+            gap: 15px;
+            margin-top: auto;
         }
 
-        button {
-            padding: 6px 12px;
+        .serve-btn, .reset-btn, .undo-btn, .hint-btn {
+            padding: 14px 25px;
             border: none;
-            border-radius: 4px;
-            background-color: #007bff;
-            color: white;
+            border-radius: 50px;
             cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        button:disabled {
-            background-color: #6c757d;
-            cursor: not-allowed;
-        }
-
-        /* 奖品配置样式 */
-        .prize-input {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 10px;
-            align-items: center;
-        }
-
-        .prize-input input, .prize-input select {
-            padding: 6px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            width: 80px;
-        }
-
-        .prize-input input[name="prizeName"] {
-            width: 120px;
-        }
-
-        /* 抽奖区样式 */
-        .lottery-setting {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-bottom: 10px;
-        }
-
-        .roll-area {
-            text-align: center;
-            padding: 50px 0;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .roll-text {
-            font-size: 40px;
-            font-weight: bold;
-            color: #e74c3c;
-        }
-
-        .control-btn {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .control-btn button {
-            padding: 10px 20px;
             font-size: 16px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
         }
 
-        /* 中奖记录样式 */
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .serve-btn {
+            background-color: #43a047;
+            color: white;
+        }
+
+        .serve-btn:hover {
+            background-color: #2e7d32;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        .reset-btn {
+            background-color: #ffca28;
+            color: #4a4a4a;
+        }
+
+        .reset-btn:hover {
+            background-color: #ffb300;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        .undo-btn {
+            background-color: #d17b49;
+            color: white;
+        }
+
+        .undo-btn:hover {
+            background-color: #b05c2e;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        .hint-btn {
+            background-color: #7986cb;
+            color: white;
+        }
+
+        .hint-btn:hover {
+            background-color: #5c6bc0;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        .score-area {
+            text-align: center;
+        }
+
+        .score-area h3 {
+            color: #e57373;
+            font-size: 22px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .level-badge {
+            background: linear-gradient(135deg, #e8a87c, #d17b49);
+            color: white;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            margin: 0 auto 15px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            border: 4px solid #ffffff;
+        }
+
+        .level {
+            font-size: 20px;
+            color: #43a047;
+            font-weight: bold;
             margin-bottom: 10px;
         }
 
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
+        .score {
+            font-size: 56px;
+            font-weight: bold;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.08);
+            animation: bounce 0.5s ease;
+            background: linear-gradient(135deg, #d17b49, #e8a87c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .feedback {
+            font-size: 18px;
+            color: #4a4a4a;
+            min-height: 50px;
+            margin: 20px 0;
+            padding: 18px;
+            border-radius: 15px;
+            background-color: #fafafa;
+            border: 2px solid #eeeeee;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 成就系统样式 */
+        .achievements-container {
+            margin: 20px 0;
             text-align: left;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        .record-table {
-            max-height: 200px;
+            padding: 15px;
+            background-color: #faf6ed;
+            border-radius: 12px;
+            border: 1px solid #f0d0a0;
+            max-height: 180px;
             overflow-y: auto;
         }
+        
+        .achievement-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #d17b49;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .achievement-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 6px 0;
+            padding: 6px;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+        
+        .achievement-item.unlocked {
+            background-color: #f0f8f2;
+            border-left: 3px solid #43a047;
+        }
+        
+        .achievement-item.locked {
+            opacity: 0.6;
+        }
+        
+        .achievement-icon {
+            font-size: 18px;
+            width: 30px;
+            text-align: center;
+        }
+        
+        .achievement-info {
+            flex: 1;
+        }
+        
+        .achievement-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .achievement-desc {
+            font-size: 12px;
+            color: #777;
+        }
 
-        /* 弹窗样式 */
-        .modal {
-            display: none;
+        .stats-container {
+            margin: 20px 0;
+            text-align: left;
+            padding: 15px;
+            background-color: #faf6ed;
+            border-radius: 12px;
+            border: 1px solid #f0d0a0;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 15px;
+        }
+
+        .stat-label {
+            color: #777;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: #d17b49;
+        }
+
+        .ingredient-item {
+            padding: 10px 15px;
+            margin: 6px 0;
+            background-color: #fff;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: fadeIn 0.3s ease forwards;
+            width: 100%;
+            border-left: 4px solid #43a047;
+        }
+
+        .ingredient-item-bread-bottom { border-left-color: #ffca28; }
+        .ingredient-item-patty { border-left-color: #b98860; }
+        .ingredient-item-lettuce { border-left-color: #43a047; }
+        .ingredient-item-tomato { border-left-color: #ef5350; }
+        .ingredient-item-cheese { border-left-color: #ffe082; }
+        .ingredient-item-onion { border-left-color: #9575cd; }
+        .ingredient-item-pickle { border-left-color: #66bb6a; }
+        .ingredient-item-bread-top { border-left-color: #ffca28; }
+        .ingredient-item-bacon { border-left-color: #d17b49; }
+        .ingredient-item-egg { border-left-color: #fff3e0; }
+        .ingredient-item-chili { border-left-color: #ef5350; }
+
+        .burger-layer {
+            width: 180px;
+            height: 25px;
+            margin: 2px 0;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            animation: slideUp 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
+        }
+
+        .layer-bread-bottom {
+            background-color: #f5e0b8;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            height: 35px;
+            border: 2px solid #ffca28;
+            color: #8b5a2b;
+        }
+
+        .layer-patty {
+            background-color: #b98860;
+            height: 30px;
+            border: 2px solid #8b5a2b;
+        }
+
+        .layer-lettuce {
+            background-color: #81c784;
+            border: 2px solid #43a047;
+        }
+
+        .layer-tomato {
+            background-color: #ef6c6c;
+            border: 2px solid #ef5350;
+        }
+
+        .layer-cheese {
+            background-color: #ffe082;
+            border: 2px solid #ffca28;
+            color: #8b5a2b;
+        }
+
+        .layer-onion {
+            background-color: #a880c8;
+            border: 2px solid #9575cd;
+        }
+
+        .layer-pickle {
+            background-color: #81c784;
+            border: 2px solid #43a047;
+            color: #1e6f5c;
+        }
+
+        .layer-bread-top {
+            background-color: #f5e0b8;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            height: 35px;
+            border: 2px solid #ffca28;
+            color: #8b5a2b;
+        }
+        
+        .layer-bacon {
+            background-color: #d17b49;
+            border: 2px solid #b05c2e;
+        }
+        
+        .layer-egg {
+            background-color: #fff3e0;
+            border: 2px solid #ffcc80;
+            color: #8b5a2b;
+        }
+        
+        .layer-chili {
+            background-color: #ef5350;
+            border: 2px solid #d32f2f;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes bounce {
+            0% { transform: scale(0.95); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        @keyframes hintPulse {
+            0% { box-shadow: 0 0 0 0 rgba(121, 134, 203, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(121, 134, 203, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(121, 134, 203, 0); }
+        }
+
+        /* 升级提示弹窗 */
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 1000;
+            text-align: center;
+            animation: bounce 0.5s ease;
+            border: 4px solid #d17b49;
+        }
+        
+        .popup h2 {
+            color: #d17b49;
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+        
+        .popup p {
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #555;
+        }
+        
+        .popup button {
+            padding: 10px 25px;
+            background-color: #43a047;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .popup button:hover {
+            background-color: #2e7d32;
+            transform: translateY(-2px);
+        }
+        
+        .overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background-color: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
+            z-index: 999;
         }
 
-        .modal-content {
-            background-color: white;
-            border-radius: 8px;
-            padding: 20px;
-            width: 400px;
-            max-width: 90%;
-        }
-
-        .modal-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 16px;
-        }
-
-        .modal-form {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .modal-form input, .modal-form select {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        .modal-btn {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            justify-content: flex-end;
-        }
-
-        /* 响应式调整 */
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
+        @media (max-width: 900px) {
+            .game-container {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+            
+            .btn-group {
+                flex-wrap: wrap;
+            }
+            
+            .btn-group button {
+                flex: 1 1 45%;
             }
 
-            .left-panel {
-                width: 100%;
+            .game-title {
+                font-size: 32px;
             }
+        }
 
-            .roll-text {
-                font-size: 24px;
+        @media (max-width: 500px) {
+            .burger-layer {
+                width: 140px;
+            }
+            
+            .ingredients {
+                justify-content: center;
+            }
+            
+            .ingredient {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+            
+            .btn-group button {
+                flex: 1 1 100%;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- 左侧面板：名单和奖品管理 -->
-        <div class="left-panel">
-            <!-- 抽奖名单 -->
-            <div class="card">
-                <div class="card-title">抽奖名单</div>
-                <div class="group-filter">
-                    <label>分组筛选：</label>
-                    <select id="groupFilter">
-                        <option value="全部">全部</option>
-                    </select>
+    <h1 class="game-title">🍔 一口入魂汉堡店 🍔</h1>
+    
+    <div class="game-container">
+        <!-- 订单区域 -->
+        <div class="order-area card">
+            <h3>🧑‍🍳 顾客订单</h3>
+            
+            <div class="customer-card" id="customerCard">
+                <div class="customer-avatar" id="customerAvatar">👨</div>
+                <div class="customer" id="customer">老王</div>
+                <!-- 特殊要求显示 -->
+                <div id="specialRequest" class="special-request" style="display: block;">不要洋葱</div>
+                <!-- 难度指示器 -->
+                <div class="difficulty-indicator" id="difficultyIndicator">
+                    <div class="difficulty-dot active"></div>
+                    <div class="difficulty-dot active"></div>
+                    <div class="difficulty-dot"></div>
                 </div>
-                <div id="personList" class="list-box"></div>
-                <div class="btn-group">
-                    <button onclick="addPerson()">添加人员</button>
-                    <button onclick="batchAddPerson()">批量添加</button>
-                    <button onclick="deletePerson()">删除选中</button>
-                    <button onclick="clearList()">清空名单</button>
-                </div>
-                <div class="btn-group">
-                    <button onclick="importList()">导入名单</button>
-                    <button onclick="exportList()">导出名单</button>
-                    <button onclick="deduplicateList()">名单去重</button>
-                    <button onclick="loadPresetList()">预设名单</button>
+                <!-- 心情状态显示 -->
+                <div class="mood-container">
+                    <div class="mood-emoji" id="moodEmoji">😊</div>
+                    <div class="mood-text mood-text-happy" id="moodText">开心</div>
+                    <div class="mood-change" id="moodChange"></div>
                 </div>
             </div>
-
-            <!-- 奖品配置 -->
-            <div class="card">
-                <div class="card-title">奖品配置</div>
-                <div class="prize-input">
-                    <label>奖品名称：</label>
-                    <input type="text" name="prizeName" id="prizeName" placeholder="输入奖品名称">
-                    <label>数量：</label>
-                    <input type="number" name="prizeCount" id="prizeCount" value="1" min="1">
-                    <label>概率(%)：</label>
-                    <input type="number" name="prizeProb" id="prizeProb" value="100" min="0" max="100">
-                    <label>分组限制：</label>
-                    <select id="prizeGroup">
-                        <option value="无限制">无限制</option>
-                        <option value="全部">全部</option>
-                    </select>
-                    <button onclick="addPrize()">添加奖品</button>
-                    <button onclick="loadPresetPrizes()">预设奖品</button>
+            
+            <div class="timer-container">
+                <div class="timer-label">制作时间</div>
+                <div class="timer-bar">
+                    <div class="timer-progress" id="timerProgress"></div>
                 </div>
-                <div id="prizeList" class="list-box"></div>
-                <div class="btn-group">
-                    <button onclick="editPrize()">编辑奖品</button>
-                    <button onclick="deletePrize()">删除奖品</button>
-                    <button onclick="clearPrizes()">清空奖品</button>
-                    <button onclick="resetPrizeCounts()">重置奖品</button>
+                <div class="timer" id="timer">剩余时间: 30s</div>
+            </div>
+            
+            <div class="target-burger" id="targetBurger">
+                <div class="burger-stack" id="targetBurgerStack">
+                    <!-- 动态生成目标汉堡层 -->
+                    <div class="burger-layer layer-bread-top">面包顶</div>
+                    <div class="burger-layer layer-cheese">芝士</div>
+                    <div class="burger-layer layer-tomato">番茄</div>
+                    <div class="burger-layer layer-lettuce">生菜</div>
+                    <div class="burger-layer layer-patty">牛肉饼</div>
+                    <div class="burger-layer layer-bread-bottom">面包底</div>
                 </div>
             </div>
         </div>
 
-        <!-- 右侧面板：抽奖和记录 -->
-        <div class="right-panel">
-            <!-- 抽奖设置 -->
-            <div class="card">
-                <div class="card-title">抽奖设置</div>
-                <div class="lottery-setting">
-                    <label>抽奖范围：</label>
-                    <select id="lotteryScope">
-                        <option value="全部人员">全部人员</option>
-                        <option value="未中奖人员" selected>未中奖人员</option>
-                    </select>
-                    <label>滚动速度：</label>
-                    <select id="rollSpeed">
-                        <option value="慢速">慢速</option>
-                        <option value="中速" selected>中速</option>
-                        <option value="快速">快速</option>
-                    </select>
+        <!-- 制作区域 -->
+        <div class="make-area card">
+            <h3>🛠️ 制作汉堡</h3>
+            
+            <div class="ingredients">
+                <button class="ingredient" data-type="面包底">面包底</button>
+                <button class="ingredient" data-type="牛肉饼">牛肉饼</button>
+                <button class="ingredient" data-type="生菜">生菜</button>
+                <button class="ingredient" data-type="番茄">番茄</button>
+                <button class="ingredient" data-type="芝士">芝士</button>
+                <button class="ingredient" data-type="洋葱">洋葱</button>
+                <button class="ingredient" data-type="酸黄瓜">酸黄瓜</button>
+                <button class="ingredient" data-type="面包顶">面包顶</button>
+                <button class="ingredient locked" data-type="培根" id="baconBtn">培根</button>
+                <button class="ingredient locked" data-type="鸡蛋" id="eggBtn">鸡蛋</button>
+                <button class="ingredient locked" data-type="辣椒" id="chiliBtn">辣椒</button>
+            </div>
+            
+            <div class="current-burger" id="currentBurger">
+                <div class="burger-stack" id="currentBurgerStack">
+                    <div style="color: #999; font-size: 16px; margin-top: 50px;">点击上方食材开始制作汉堡...</div>
                 </div>
             </div>
+            
+            <!-- 功能按钮区 - 移除了音效按钮 -->
+            <div class="btn-group">
+                <button class="hint-btn" id="hintBtn">💡 提示</button>
+                <button class="undo-btn" id="undoBtn">↩️ 撤销</button>
+                <button class="reset-btn" id="resetBtn">🔄 重置</button>
+                <button class="serve-btn" id="serveBtn">✅ 送出</button>
+            </div>
+        </div>
 
-            <!-- 抽奖区 -->
-            <div class="card">
-                <div class="card-title">抽奖区</div>
-                <div class="roll-area">
-                    <div id="rollText" class="roll-text">🎯 点击开始抽奖 🎯</div>
+        <!-- 评分区域 -->
+        <div class="score-area card">
+            <h3>🏆 游戏统计</h3>
+            
+            <div class="level-badge" id="levelBadge">1</div>
+            <div class="level" id="level">等级: 1</div>
+            
+            <div class="score" id="score">0</div>
+            
+            <!-- 成就系统 -->
+            <div class="achievements-container">
+                <div class="achievement-title">🏆 成就系统</div>
+                <div class="achievement-item locked" id="achievement1">
+                    <div class="achievement-icon">🔒</div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">汉堡新手</div>
+                        <div class="achievement-desc">完成第一个汉堡订单</div>
+                    </div>
                 </div>
-                <div class="control-btn">
-                    <button id="startBtn" onclick="startRoll()">开始抽奖</button>
-                    <button id="stopBtn" onclick="stopRoll()" disabled>停止抽奖</button>
-                    <button onclick="exportWinners()">导出中奖记录</button>
+                <div class="achievement-item locked" id="achievement2">
+                    <div class="achievement-icon">🔒</div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">连续命中</div>
+                        <div class="achievement-desc">连续5次制作正确的汉堡</div>
+                    </div>
+                </div>
+                <div class="achievement-item locked" id="achievement3">
+                    <div class="achievement-icon">🔒</div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">升级达人</div>
+                        <div class="achievement-desc">升级到5级</div>
+                    </div>
+                </div>
+                <div class="achievement-item locked" id="achievement4">
+                    <div class="achievement-icon">🔒</div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">满分百次</div>
+                        <div class="achievement-desc">累计完成100分的订单</div>
+                    </div>
+                </div>
+                <div class="achievement-item locked" id="achievement5">
+                    <div class="achievement-icon">🔒</div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">解锁大师</div>
+                        <div class="achievement-desc">解锁所有食材</div>
+                    </div>
                 </div>
             </div>
-
-            <!-- 中奖记录 -->
-            <div class="card">
-                <div class="card-title">中奖记录</div>
-                <div class="record-table">
-                    <table id="winnerTable">
-                        <thead>
-                            <tr>
-                                <th>奖品</th>
-                                <th>获奖者</th>
-                                <th>分组</th>
-                                <th>中奖时间</th>
-                            </tr>
-                        </thead>
-                        <tbody id="winnerBody"></tbody>
-                    </table>
+            
+            <!-- 游戏统计信息 -->
+            <div class="stats-container">
+                <div class="stat-item">
+                    <span class="stat-label">完成订单数:</span>
+                    <span class="stat-value" id="completedOrders">0</span>
                 </div>
-                <div class="btn-group">
-                    <button onclick="filterRecordsByPrize()">按奖品筛选</button>
-                    <button onclick="clearRecords()">清空记录</button>
+                <div class="stat-item">
+                    <span class="stat-label">正确率:</span>
+                    <span class="stat-value" id="accuracyRate">0%</span>
                 </div>
+                <div class="stat-item">
+                    <span class="stat-label">连续正确:</span>
+                    <span class="stat-value" id="streakCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">剩余提示次数:</span>
+                    <span class="stat-value" id="hintCount">3</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">解锁食材:</span>
+                    <span class="stat-value" id="unlockedIngredients">8/11</span>
+                </div>
+            </div>
+            
+            <div class="feedback" id="feedback">
+                欢迎来到一口入魂汉堡店！
+            </div>
+            
+            <div>
+                <button class="reset-btn" style="margin-top: 20px; padding: 12px 30px;" id="restartBtn">🔄 重新开始</button>
             </div>
         </div>
     </div>
 
-    <!-- 弹窗：添加人员 -->
-    <div id="addPersonModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-title">添加人员</div>
-            <div class="modal-form">
-                <label>姓名：</label>
-                <input type="text" id="newPersonName" placeholder="输入姓名">
-                <label>分组：</label>
-                <input type="text" id="newPersonGroup" placeholder="输入分组（默认未分组）" value="未分组">
-            </div>
-            <div class="modal-btn">
-                <button onclick="closeModal('addPersonModal')">取消</button>
-                <button onclick="savePerson()">保存</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 弹窗：批量添加人员 -->
-    <div id="batchAddModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-title">批量添加人员</div>
-            <div class="modal-form">
-                <label>姓名列表（每行一个，格式：姓名-分组 或 仅姓名）：</label>
-                <textarea id="batchPersonText" rows="8" placeholder="张三-技术部&#10;李四-市场部&#10;王五"></textarea>
-            </div>
-            <div class="modal-btn">
-                <button onclick="closeModal('batchAddModal')">取消</button>
-                <button onclick="saveBatchPerson()">保存</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 弹窗：编辑奖品 -->
-    <div id="editPrizeModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-title">编辑奖品</div>
-            <div class="modal-form">
-                <label>奖品名称：</label>
-                <input type="text" id="editPrizeName" placeholder="输入奖品名称">
-                <label>数量：</label>
-                <input type="number" id="editPrizeCount" min="1">
-                <label>概率(%)：</label>
-                <input type="number" id="editPrizeProb" min="0" max="100">
-                <label>分组限制：</label>
-                <select id="editPrizeGroup">
-                    <option value="无限制">无限制</option>
-                    <option value="全部">全部</option>
-                </select>
-            </div>
-            <div class="modal-btn">
-                <button onclick="closeModal('editPrizeModal')">取消</button>
-                <button onclick="saveEditPrize()">保存</button>
-            </div>
-        </div>
+    <!-- 升级弹窗 -->
+    <div class="overlay" id="levelUpOverlay" style="display: none;"></div>
+    <div class="popup" id="levelUpPopup" style="display: none;">
+        <h2>🎊 恭喜升级！</h2>
+        <p id="levelUpMessage">你已升级到2级，解锁了新食材！</p>
+        <button id="popupCloseBtn">继续游戏</button>
     </div>
 
     <script>
-        // 核心数据
-        let participants = []; // [(姓名, 分组), ...]
-        let prizes = [];       // [(名称, 总数, 已抽中, 概率, 分组限制), ...]
-        let winners = [];      // [(奖品, 获奖者, 分组, 时间), ...]
-        let isRolling = false; // 是否正在滚动抽奖
-        let rollInterval = null; // 抽奖滚动定时器
-        let currentGroup = "全部"; // 当前选中分组
-        let selectedPrizeIndex = -1; // 选中的奖品索引
-
-        // 预设数据
-        const presetGroups = ["技术部", "市场部", "运营部", "财务部", "人事部"];
-        const presetPrizes = [
-            ["一等奖 - 平板电脑", 1, 0, 5, "无限制"],
-            ["二等奖 - 无线耳机", 3, 0, 15, "无限制"],
-            ["三等奖 - 充电宝", 10, 0, 30, "无限制"],
-            ["参与奖 - 定制水杯", 50, 0, 50, "无限制"]
-        ];
-        const presetList = [
-            ["张三", "技术部"], ["李四", "技术部"], ["王五", "技术部"],
-            ["赵六", "市场部"], ["钱七", "市场部"], ["孙八", "市场部"],
-            ["周九", "运营部"], ["吴十", "运营部"], ["郑十一", "财务部"],
-            ["王十二", "人事部"], ["刘十三", "技术部"], ["陈十四", "市场部"]
-        ];
-
-        // 页面加载完成后初始化
-        window.onload = function() {
-            updateGroupSelect();
-            updatePrizeGroupSelect();
+        // 游戏配置
+        const GAME_CONFIG = {
+            baseTime: 30,       // 基础时间（秒）
+            levelUpScore: 500,  // 升级所需分数
+            correctScore: 100,  // 正确得分
+            wrongScore: -50,    // 错误扣分
+            timePenalty: -30,   // 超时扣分
+            // 心情系统配置
+            moodCheckInterval: 5, // 心情检查间隔（秒）
+            moodDecrement: 1,     // 每次检查心情下降值
+            wrongMoodPenalty: 2,  // 制作错误心情惩罚值
+            timeOutMoodPenalty: 5, // 超时心情惩罚值
+            // 新增配置
+            initialHintCount: 3,   // 初始提示次数
+            streakBonus: 20,       // 连续正确奖励分数
+            maxStreakBonus: 50,    // 最大连续奖励
+            // 难度系统配置
+            difficultyLevels: 3,   // 难度等级数量
+            specialRequestChance: 0.3, // 特殊要求出现概率
+            // 食材解锁配置
+            unlockLevels: {
+                "培根": 3,
+                "鸡蛋": 5,
+                "辣椒": 7
+            }
         };
 
-        // ------------------- 通用工具函数 -------------------
-        // 显示弹窗
-        function openModal(modalId) {
-            document.getElementById(modalId).style.display = "flex";
-        }
-
-        // 关闭弹窗
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = "none";
-        }
-
-        // 获取选中的列表项（用于名单和奖品列表）
-        function getSelectedItem(listId) {
-            const list = document.getElementById(listId);
-            const items = list.children;
-            for (let i = 0; i < items.length; i++) {
-                if (items[i].classList.contains("selected")) {
-                    return i;
-                }
+        // 游戏状态
+        let gameState = {
+            score: 0,
+            level: 1,
+            completedOrders: 0,
+            correctOrders: 0,
+            streakCount: 0,
+            hintCount: GAME_CONFIG.initialHintCount,
+            unlockedIngredients: 8,
+            currentBurger: [],
+            targetBurger: ['面包底', '牛肉饼', '生菜', '番茄', '芝士', '面包顶'],
+            timeRemaining: GAME_CONFIG.baseTime,
+            timerInterval: null,
+            moodLevel: 4, // 4=开心, 3=满意, 2=一般, 1=不开心, 0=愤怒
+            currentCustomer: {
+                name: '老王',
+                avatar: '👨',
+                specialRequest: '不要洋葱',
+                difficulty: 2
             }
-            return -1;
-        }
+        };
 
-        // 格式化时间
-        function formatTime() {
-            const now = new Date();
-            return now.toLocaleString("zh-CN", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit"
-            }).replace(/\//g, "-");
-        }
-
-        // ------------------- 名单管理功能 -------------------
-        // 更新分组下拉框
-        function updateGroupSelect() {
-            const groupFilter = document.getElementById("groupFilter");
-            const groups = [...new Set(participants.map(p => p[1]))].sort();
-            groupFilter.innerHTML = '<option value="全部">全部</option>';
-            groups.forEach(group => {
-                const option = document.createElement("option");
-                option.value = group;
-                option.textContent = group;
-                groupFilter.appendChild(option);
-            });
-            groupFilter.value = currentGroup;
-        }
-
-        // 更新奖品分组限制下拉框
-        function updatePrizeGroupSelect() {
-            const prizeGroup = document.getElementById("prizeGroup");
-            const editPrizeGroup = document.getElementById("editPrizeGroup");
-            const groups = [...new Set(participants.map(p => p[1]))].sort();
-            const options = ['<option value="无限制">无限制</option>', '<option value="全部">全部</option>'];
-            groups.forEach(group => {
-                options.push(`<option value="${group}">${group}</option>`);
-            });
-            prizeGroup.innerHTML = options.join("");
-            editPrizeGroup.innerHTML = options.join("");
-        }
-
-        // 刷新名单显示
-        function refreshPersonList() {
-            const personList = document.getElementById("personList");
-            personList.innerHTML = "";
-            const filterGroup = document.getElementById("groupFilter").value;
-            currentGroup = filterGroup;
-
-            participants.forEach(([name, group]) => {
-                if (filterGroup === "全部" || group === filterGroup) {
-                    const item = document.createElement("div");
-                    item.textContent = `${name} - ${group}`;
-                    item.onclick = function() {
-                        // 切换选中状态
-                        const items = personList.children;
-                        for (let i = 0; i < items.length; i++) {
-                            items[i].classList.remove("selected");
-                        }
-                        this.classList.add("selected");
-                    };
-                    personList.appendChild(item);
-                }
-            });
-        }
-
-        // 添加人员
-        function addPerson() {
-            openModal("addPersonModal");
-            document.getElementById("newPersonName").value = "";
-            document.getElementById("newPersonGroup").value = "未分组";
-        }
-
-        // 保存人员
-        function savePerson() {
-            const name = document.getElementById("newPersonName").value.trim();
-            let group = document.getElementById("newPersonGroup").value.trim() || "未分组";
-            if (!name) {
-                alert("姓名不能为空！");
-                return;
+        // 初始化游戏
+        function initGame() {
+            // 设置顾客信息
+            document.getElementById('customerAvatar').textContent = gameState.currentCustomer.avatar;
+            document.getElementById('customer').textContent = gameState.currentCustomer.name;
+            
+            // 设置特殊要求
+            const specialRequestEl = document.getElementById('specialRequest');
+            if (gameState.currentCustomer.specialRequest) {
+                specialRequestEl.textContent = gameState.currentCustomer.specialRequest;
+                specialRequestEl.style.display = 'block';
             }
-
-            // 检查重复
-            if (participants.some(p => p[0] === name && p[1] === group)) {
-                alert(`${name}（${group}）已在名单中！`);
-                return;
-            }
-
-            participants.push([name, group]);
-            refreshPersonList();
-            updateGroupSelect();
-            updatePrizeGroupSelect();
-            closeModal("addPersonModal");
-        }
-
-        // 批量添加人员
-        function batchAddPerson() {
-            openModal("batchAddModal");
-            document.getElementById("batchPersonText").value = "张三-技术部\n李四-市场部\n王五";
-        }
-
-        // 保存批量人员
-        function saveBatchPerson() {
-            const text = document.getElementById("batchPersonText").value;
-            if (!text) {
-                alert("请输入人员列表！");
-                return;
-            }
-
-            let added = 0;
-            let duplicate = 0;
-            const lines = text.split("\n");
-
-            lines.forEach(line => {
-                line = line.trim();
-                if (!line) return;
-
-                let name, group;
-                if (line.includes("-")) {
-                    [name, group] = line.split("-", 2);
-                    name = name.trim();
-                    group = group.trim() || "未分组";
+            
+            // 设置难度指示器
+            const difficultyDots = document.querySelectorAll('.difficulty-dot');
+            difficultyDots.forEach((dot, index) => {
+                if (index < gameState.currentCustomer.difficulty) {
+                    dot.classList.add('active');
                 } else {
-                    name = line;
-                    group = "未分组";
-                }
-
-                if (participants.some(p => p[0] === name && p[1] === group)) {
-                    duplicate++;
-                    return;
-                }
-
-                participants.push([name, group]);
-                added++;
-            });
-
-            refreshPersonList();
-            updateGroupSelect();
-            updatePrizeGroupSelect();
-            closeModal("batchAddModal");
-            alert(`成功添加 ${added} 人，${duplicate} 人重复未添加`);
-        }
-
-        // 删除选中人员
-        function deletePerson() {
-            const index = getSelectedItem("personList");
-            if (index === -1) {
-                alert("请先选中要删除的人员！");
-                return;
-            }
-
-            // 找到原始数据的索引
-            const filterGroup = document.getElementById("groupFilter").value;
-            let filteredList = participants;
-            if (filterGroup !== "全部") {
-                filteredList = participants.filter(p => p[1] === filterGroup);
-            }
-
-            const [name, group] = filteredList[index];
-            // 从原始数据中删除
-            participants = participants.filter(p => !(p[0] === name && p[1] === group));
-            refreshPersonList();
-        }
-
-        // 清空名单
-        function clearList() {
-            if (!confirm("确定要清空所有抽奖名单吗？")) return;
-            participants = [];
-            refreshPersonList();
-            updateGroupSelect();
-            updatePrizeGroupSelect();
-        }
-
-        // 导入名单（模拟，实际项目中可使用FileReader）
-        function importList() {
-            alert("网页版暂不支持文件导入，可使用批量添加功能替代！");
-        }
-
-        // 导出名单
-        function exportList() {
-            if (participants.length === 0) {
-                alert("暂无名单可导出！");
-                return;
-            }
-
-            const csvContent = "姓名,分组\n" + participants.map(p => p.join(",")).join("\n");
-            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `抽奖名单_${formatTime().replace(/\s|:|-/g, "")}.csv`);
-            link.style.display = "none";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // 名单去重
-        function deduplicateList() {
-            if (participants.length === 0) {
-                alert("名单为空，无需去重！");
-                return;
-            }
-
-            const unique = [];
-            const seen = new Set();
-            participants.forEach(p => {
-                const key = `${p[0]}-${p[1]}`;
-                if (!seen.has(key)) {
-                    seen.add(key);
-                    unique.push(p);
+                    dot.classList.remove('active');
                 }
             });
-
-            const duplicateCount = participants.length - unique.length;
-            if (duplicateCount === 0) {
-                alert("名单中无重复人员！");
-                return;
-            }
-
-            participants = unique;
-            refreshPersonList();
-            alert(`共移除 ${duplicateCount} 个重复人员`);
+            
+            // 初始化计时器
+            updateTimer();
+            startTimer();
+            
+            // 绑定食材点击事件
+            bindIngredientEvents();
+            
+            // 绑定功能按钮事件
+            bindButtonEvents();
         }
 
-        // 加载预设名单
-        function loadPresetList() {
-            if (!confirm("是否加载预设测试名单？（会清空现有名单）")) return;
-            participants = [...presetList];
-            refreshPersonList();
-            updateGroupSelect();
-            updatePrizeGroupSelect();
-            alert("预设测试名单已加载！");
-        }
-
-        // ------------------- 奖品管理功能 -------------------
-        // 刷新奖品列表显示
-        function refreshPrizeList() {
-            const prizeList = document.getElementById("prizeList");
-            prizeList.innerHTML = "";
-
-            prizes.forEach((prize, index) => {
-                const [name, total, used, prob, groupLimit] = prize;
-                const remaining = total - used;
-                const item = document.createElement("div");
-                item.textContent = `${name} | 总数：${total} | 剩余：${remaining} | 概率：${prob}% | 限制：${groupLimit}`;
-                item.onclick = function() {
-                    // 切换选中状态
-                    const items = prizeList.children;
-                    for (let i = 0; i < items.length; i++) {
-                        items[i].classList.remove("selected");
-                    }
-                    this.classList.add("selected");
-                    selectedPrizeIndex = index;
-                };
-                prizeList.appendChild(item);
+        // 绑定食材点击事件
+        function bindIngredientEvents() {
+            const ingredientButtons = document.querySelectorAll('.ingredient:not(.locked)');
+            ingredientButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const ingredient = this.getAttribute('data-type');
+                    addIngredientToBurger(ingredient);
+                });
             });
         }
 
-        // 添加奖品
-        function addPrize() {
-            const name = document.getElementById("prizeName").value.trim();
-            const count = parseInt(document.getElementById("prizeCount").value);
-            const prob = parseFloat(document.getElementById("prizeProb").value);
-            const groupLimit = document.getElementById("prizeGroup").value;
-
-            if (!name) {
-                alert("奖品名称不能为空！");
-                return;
-            }
-
-            if (isNaN(count) || count < 1) {
-                alert("数量必须为正整数！");
-                return;
-            }
-
-            if (isNaN(prob) || prob < 0 || prob > 100) {
-                alert("概率必须在0-100之间！");
-                return;
-            }
-
-            prizes.push([name, count, 0, prob, groupLimit]);
-            refreshPrizeList();
-
-            // 清空输入框
-            document.getElementById("prizeName").value = "";
-            document.getElementById("prizeCount").value = 1;
-            document.getElementById("prizeProb").value = 100;
-            document.getElementById("prizeGroup").value = "无限制";
+        // 绑定功能按钮事件
+        function bindButtonEvents() {
+            // 提示按钮
+            document.getElementById('hintBtn').addEventListener('click', showHint);
+            
+            // 撤销按钮
+            document.getElementById('undoBtn').addEventListener('click', undoLastIngredient);
+            
+            // 重置按钮
+            document.getElementById('resetBtn').addEventListener('click', resetBurger);
+            
+            // 送出按钮
+            document.getElementById('serveBtn').addEventListener('click', serveBurger);
+            
+            // 重新开始按钮
+            document.getElementById('restartBtn').addEventListener('click', restartGame);
+            
+            // 弹窗关闭按钮
+            document.getElementById('popupCloseBtn').addEventListener('click', closeLevelUpPopup);
         }
 
-        // 编辑奖品
-        function editPrize() {
-            if (selectedPrizeIndex === -1) {
-                alert("请先选中要编辑的奖品！");
-                return;
-            }
-
-            const prize = prizes[selectedPrizeIndex];
-            document.getElementById("editPrizeName").value = prize[0];
-            document.getElementById("editPrizeCount").value = prize[1];
-            document.getElementById("editPrizeProb").value = prize[3];
-            document.getElementById("editPrizeGroup").value = prize[4];
-            openModal("editPrizeModal");
+        // 添加食材到汉堡
+        function addIngredientToBurger(ingredient) {
+            gameState.currentBurger.push(ingredient);
+            updateCurrentBurgerDisplay();
         }
 
-        // 保存编辑奖品
-        function saveEditPrize() {
-            const name = document.getElementById("editPrizeName").value.trim();
-            const count = parseInt(document.getElementById("editPrizeCount").value);
-            const prob = parseFloat(document.getElementById("editPrizeProb").value);
-            const groupLimit = document.getElementById("editPrizeGroup").value;
-
-            if (!name) {
-                alert("奖品名称不能为空！");
+        // 更新当前汉堡显示
+        function updateCurrentBurgerDisplay() {
+            const currentBurgerStack = document.getElementById('currentBurgerStack');
+            
+            // 清空当前显示
+            currentBurgerStack.innerHTML = '';
+            
+            // 如果汉堡为空，显示提示文字
+            if (gameState.currentBurger.length === 0) {
+                currentBurgerStack.innerHTML = '<div style="color: #999; font-size: 16px; margin-top: 50px;">点击上方食材开始制作汉堡...</div>';
                 return;
             }
-
-            if (isNaN(count) || count < 1) {
-                alert("数量必须为正整数！");
-                return;
-            }
-
-            if (isNaN(prob) || prob < 0 || prob > 100) {
-                alert("概率必须在0-100之间！");
-                return;
-            }
-
-            // 更新奖品数据
-            prizes[selectedPrizeIndex] = [name, count, prizes[selectedPrizeIndex][2], prob, groupLimit];
-            refreshPrizeList();
-            closeModal("editPrizeModal");
-            alert("奖品信息已更新！");
-        }
-
-        // 删除奖品
-        function deletePrize() {
-            if (selectedPrizeIndex === -1) {
-                alert("请先选中要删除的奖品！");
-                return;
-            }
-
-            prizes.splice(selectedPrizeIndex, 1);
-            selectedPrizeIndex = -1;
-            refreshPrizeList();
-        }
-
-        // 清空奖品
-        function clearPrizes() {
-            if (!confirm("确定要清空所有奖品吗？")) return;
-            prizes = [];
-            selectedPrizeIndex = -1;
-            refreshPrizeList();
-        }
-
-        // 重置奖品数量
-        function resetPrizeCounts() {
-            if (prizes.length === 0) {
-                alert("暂无奖品可重置！");
-                return;
-            }
-
-            if (!confirm("确定要重置所有奖品的已抽中数量吗？")) return;
-            prizes = prizes.map(prize => [prize[0], prize[1], 0, prize[3], prize[4]]);
-            refreshPrizeList();
-            alert("所有奖品数量已重置！");
-        }
-
-        // 加载预设奖品
-        function loadPresetPrizes() {
-            if (!confirm("是否加载预设奖品模板？（会清空现有奖品）")) return;
-            prizes = [...presetPrizes];
-            refreshPrizeList();
-            alert("预设奖品模板已加载！");
-        }
-
-        // ------------------- 抽奖功能 -------------------
-        // 开始滚动抽奖
-        function startRoll() {
-            if (participants.length === 0) {
-                alert("请先添加抽奖人员！");
-                return;
-            }
-
-            if (prizes.length === 0) {
-                alert("请先添加奖品！");
-                return;
-            }
-
-            // 检查是否有可抽奖的奖品
-            const availablePrizes = prizes.filter(p => p[1] > p[2]);
-            if (availablePrizes.length === 0) {
-                alert("所有奖品都已抽完！");
-                return;
-            }
-
-            // 设置滚动速度
-            const speed = document.getElementById("rollSpeed").value;
-            const speedMap = { "慢速": 100, "中速": 50, "快速": 20 };
-            const interval = speedMap[speed];
-
-            // 开始滚动
-            isRolling = true;
-            document.getElementById("startBtn").disabled = true;
-            document.getElementById("stopBtn").disabled = false;
-
-            // 随机滚动显示人员
-            rollInterval = setInterval(() => {
-                let displayList = participants;
-                if (currentGroup !== "全部") {
-                    displayList = participants.filter(p => p[1] === currentGroup);
-                }
-
-                if (displayList.length > 0) {
-                    const randomPerson = displayList[Math.floor(Math.random() * displayList.length)];
-                    document.getElementById("rollText").textContent = randomPerson[0];
-                }
-            }, interval);
-        }
-
-        // 停止抽奖
-        function stopRoll() {
-            if (!isRolling) return;
-
-            // 停止滚动
-            clearInterval(rollInterval);
-            isRolling = false;
-            document.getElementById("startBtn").disabled = false;
-            document.getElementById("stopBtn").disabled = true;
-
-            // 筛选符合条件的人员
-            let eligibleParticipants = participants;
-            if (currentGroup !== "全部") {
-                eligibleParticipants = participants.filter(p => p[1] === currentGroup);
-            }
-
-            // 按中奖状态筛选
-            if (document.getElementById("lotteryScope").value === "未中奖人员") {
-                const winnerNames = winners.map(w => w[1]);
-                eligibleParticipants = eligibleParticipants.filter(p => !winnerNames.includes(p[0]));
-            }
-
-            if (eligibleParticipants.length === 0) {
-                alert("没有符合条件的抽奖人员！");
-                document.getElementById("rollText").textContent = "🎯 点击开始抽奖 🎯";
-                return;
-            }
-
-            // 筛选可抽取的奖品（按概率加权）
-            const availablePrizes = [];
-            const prizeWeights = [];
-            prizes.forEach((prize, index) => {
-                if (prize[1] > prize[2]) {
-                    // 检查分组限制
-                    if (prize[4] === "无限制" || prize[4] === currentGroup || currentGroup === "全部") {
-                        availablePrizes.push({ index, prize });
-                        prizeWeights.push(prize[3]);
-                    }
-                }
-            });
-
-            if (availablePrizes.length === 0) {
-                alert("没有可抽取的奖品了！");
-                document.getElementById("rollText").textContent = "🎯 点击开始抽奖 🎯";
-                return;
-            }
-
-            // 按概率随机选择奖品
-            let selectedPrize;
-            try {
-                // 使用权重随机选择
-                const totalWeight = prizeWeights.reduce((a, b) => a + b, 0);
-                let random = Math.random() * totalWeight;
-                let i = 0;
-                while (random > prizeWeights[i]) {
-                    random -= prizeWeights[i];
-                    i++;
-                }
-                selectedPrize = availablePrizes[i];
-            } catch (e) {
-                // 权重全为0时随机选择
-                selectedPrize = availablePrizes[Math.floor(Math.random() * availablePrizes.length)];
-            }
-
-            // 随机选择中奖者
-            const winner = eligibleParticipants[Math.floor(Math.random() * eligibleParticipants.length)];
-            const [winnerName, winnerGroup] = winner;
-            const { index: prizeIndex, prize } = selectedPrize;
-            const [prizeName, total, used, prob, groupLimit] = prize;
-
-            // 更新奖品数量
-            prizes[prizeIndex] = [prizeName, total, used + 1, prob, groupLimit];
-            refreshPrizeList();
-
-            // 记录中奖信息
-            const time = formatTime();
-            winners.push([prizeName, winnerName, winnerGroup, time]);
-
-            // 更新显示
-            document.getElementById("rollText").textContent = `🎉 ${winnerName} 抽中 ${prizeName} 🎉`;
-
-            // 添加到中奖记录表格
-            const winnerBody = document.getElementById("winnerBody");
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>${prizeName}</td>
-                <td>${winnerName}</td>
-                <td>${winnerGroup}</td>
-                <td>${time}</td>
-            `;
-            winnerBody.appendChild(row);
-
-            // 提示
-            alert(`恭喜 ${winnerName}（${winnerGroup}）获得 ${prizeName}！`);
-        }
-
-        // ------------------- 中奖记录管理 -------------------
-        // 按奖品筛选记录
-        function filterRecordsByPrize() {
-            if (winners.length === 0) {
-                alert("暂无中奖记录可筛选！");
-                return;
-            }
-
-            const prizeNames = [...new Set(winners.map(w => w[0]))];
-            const prizeName = prompt(`请输入要筛选的奖品名称（可选：${prizeNames.join(", ")}）：`);
-
-            if (!prizeName || !prizeNames.includes(prizeName)) {
-                alert("无效的奖品名称，显示全部记录");
-                refreshWinnerTable();
-                return;
-            }
-
-            // 筛选并显示
-            const winnerBody = document.getElementById("winnerBody");
-            winnerBody.innerHTML = "";
-            winners.forEach(winner => {
-                if (winner[0] === prizeName) {
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
-                        <td>${winner[0]}</td>
-                        <td>${winner[1]}</td>
-                        <td>${winner[2]}</td>
-                        <td>${winner[3]}</td>
-                    `;
-                    winnerBody.appendChild(row);
-                }
+            
+            // 逆序显示（面包底在最下面）
+            const reversedBurger = [...gameState.currentBurger].reverse();
+            
+            // 添加汉堡层
+            reversedBurger.forEach(ingredient => {
+                const layerClass = getLayerClass(ingredient);
+                const layerEl = document.createElement('div');
+                layerEl.className = `burger-layer ${layerClass}`;
+                layerEl.textContent = ingredient;
+                currentBurgerStack.appendChild(layerEl);
             });
         }
 
-        // 刷新中奖记录表格
-        function refreshWinnerTable() {
-            const winnerBody = document.getElementById("winnerBody");
-            winnerBody.innerHTML = "";
-            winners.forEach(winner => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${winner[0]}</td>
-                    <td>${winner[1]}</td>
-                    <td>${winner[2]}</td>
-                    <td>${winner[3]}</td>
-                `;
-                winnerBody.appendChild(row);
+        // 获取食材对应的样式类
+        function getLayerClass(ingredient) {
+            switch(ingredient) {
+                case '面包底': return 'layer-bread-bottom';
+                case '牛肉饼': return 'layer-patty';
+                case '生菜': return 'layer-lettuce';
+                case '番茄': return 'layer-tomato';
+                case '芝士': return 'layer-cheese';
+                case '洋葱': return 'layer-onion';
+                case '酸黄瓜': return 'layer-pickle';
+                case '面包顶': return 'layer-bread-top';
+                case '培根': return 'layer-bacon';
+                case '鸡蛋': return 'layer-egg';
+                case '辣椒': return 'layer-chili';
+                default: return '';
+            }
+        }
+
+        // 撤销上一步
+        function undoLastIngredient() {
+            if (gameState.currentBurger.length > 0) {
+                gameState.currentBurger.pop();
+                updateCurrentBurgerDisplay();
+                showFeedback('已撤销上一步操作');
+            } else {
+                showFeedback('没有可撤销的操作！');
+            }
+        }
+
+        // 重置汉堡
+        function resetBurger() {
+            gameState.currentBurger = [];
+            updateCurrentBurgerDisplay();
+            showFeedback('已重置汉堡制作');
+        }
+
+        // 显示提示
+        function showHint() {
+            if (gameState.hintCount <= 0) {
+                showFeedback('提示次数已用完！');
+                return;
+            }
+            
+            gameState.hintCount--;
+            document.getElementById('hintCount').textContent = gameState.hintCount;
+            
+            // 找到下一个需要添加的食材
+            let nextIngredient = '';
+            for (let i = 0; i < gameState.targetBurger.length; i++) {
+                if (i >= gameState.currentBurger.length || gameState.currentBurger[i] !== gameState.targetBurger[i]) {
+                    nextIngredient = gameState.targetBurger[i];
+                    break;
+                }
+            }
+            
+            if (nextIngredient) {
+                showFeedback(`提示：下一步需要添加${nextIngredient}`);
+                
+                // 高亮提示对应的食材按钮
+                const hintButton = document.querySelector(`.ingredient[data-type="${nextIngredient}"]`);
+                if (hintButton) {
+                    hintButton.style.animation = 'hintPulse 1.5s infinite';
+                    setTimeout(() => {
+                        hintButton.style.animation = '';
+                    }, 3000);
+                }
+            } else {
+                showFeedback('提示：你的汉堡已经制作完成，可以送出了！');
+            }
+        }
+
+        // 送出汉堡
+        function serveBurger() {
+            // 停止计时器
+            clearInterval(gameState.timerInterval);
+            
+            // 检查汉堡是否正确
+            const isCorrect = checkBurger();
+            
+            if (isCorrect) {
+                // 正确
+                gameState.correctOrders++;
+                gameState.streakCount++;
+                gameState.score += GAME_CONFIG.correctScore;
+                
+                // 添加连续奖励
+                const streakBonus = Math.min(gameState.streakCount * GAME_CONFIG.streakBonus, GAME_CONFIG.maxStreakBonus);
+                if (streakBonus > 0) {
+                    gameState.score += streakBonus;
+                    showFeedback(`太棒了！汉堡制作正确！+${GAME_CONFIG.correctScore}分，连续奖励+${streakBonus}分`);
+                } else {
+                    showFeedback(`太棒了！汉堡制作正确！+${GAME_CONFIG.correctScore}分`);
+                }
+                
+                // 提升心情
+                improveMood();
+            } else {
+                // 错误
+                gameState.score += GAME_CONFIG.wrongScore;
+                gameState.streakCount = 0;
+                showFeedback(`哎呀！汉堡制作错误！${GAME_CONFIG.wrongScore}分`);
+                
+                // 降低心情
+                worsenMood(GAME_CONFIG.wrongMoodPenalty);
+            }
+            
+            // 更新统计
+            gameState.completedOrders++;
+            updateStats();
+            
+            // 检查升级
+            checkLevelUp();
+            
+            // 解锁成就
+            checkAchievements();
+            
+            // 准备下一个订单
+            setTimeout(() => {
+                nextOrder();
+            }, 2000);
+        }
+
+        // 检查汉堡是否正确
+        function checkBurger() {
+            // 检查长度是否一致
+            if (gameState.currentBurger.length !== gameState.targetBurger.length) {
+                return false;
+            }
+            
+            // 检查每一层是否一致
+            for (let i = 0; i < gameState.currentBurger.length; i++) {
+                if (gameState.currentBurger[i] !== gameState.targetBurger[i]) {
+                    return false;
+                }
+            }
+            
+            // 检查特殊要求
+            if (gameState.currentCustomer.specialRequest === '不要洋葱' && 
+                gameState.currentBurger.includes('洋葱')) {
+                return false;
+            }
+            
+            return true;
+        }
+
+        // 更新计时器显示
+        function updateTimer() {
+            document.getElementById('timer').textContent = `剩余时间: ${gameState.timeRemaining}s`;
+            
+            // 更新进度条
+            const progressPercent = (gameState.timeRemaining / GAME_CONFIG.baseTime) * 100;
+            document.getElementById('timerProgress').style.width = `${progressPercent}%`;
+            
+            // 改变进度条颜色
+            if (progressPercent < 30) {
+                document.getElementById('timerProgress').style.background = 'linear-gradient(90deg, #ef5350, #e57373, #ef5350)';
+            } else if (progressPercent < 60) {
+                document.getElementById('timerProgress').style.background = 'linear-gradient(90deg, #ffca28, #ffb74d, #ffca28)';
+            }
+        }
+
+        // 开始计时器
+        function startTimer() {
+            gameState.timerInterval = setInterval(() => {
+                gameState.timeRemaining--;
+                updateTimer();
+                
+                // 检查心情（每隔指定时间）
+                if (gameState.timeRemaining % GAME_CONFIG.moodCheckInterval === 0) {
+                    worsenMood(GAME_CONFIG.moodDecrement);
+                }
+                
+                // 时间到
+                if (gameState.timeRemaining <= 0) {
+                    clearInterval(gameState.timerInterval);
+                    gameState.score += GAME_CONFIG.timePenalty;
+                    gameState.streakCount = 0;
+                    showFeedback(`时间到！${GAME_CONFIG.timePenalty}分`);
+                    worsenMood(GAME_CONFIG.timeOutMoodPenalty);
+                    
+                    // 更新统计
+                    gameState.completedOrders++;
+                    updateStats();
+                    
+                    // 准备下一个订单
+                    setTimeout(() => {
+                        nextOrder();
+                    }, 2000);
+                }
+            }, 1000);
+        }
+
+        // 改善心情
+        function improveMood() {
+            gameState.moodLevel = Math.min(4, gameState.moodLevel + 1);
+            updateMoodDisplay();
+            document.getElementById('moodChange').textContent = '心情变好了😊';
+        }
+
+        // 恶化心情
+        function worsenMood(penalty = 1) {
+            gameState.moodLevel = Math.max(0, gameState.moodLevel - penalty);
+            updateMoodDisplay();
+            document.getElementById('moodChange').textContent = '心情变差了😞';
+        }
+
+        // 更新心情显示
+        function updateMoodDisplay() {
+            const moodEmoji = document.getElementById('moodEmoji');
+            const moodText = document.getElementById('moodText');
+            const customerCard = document.getElementById('customerCard');
+            
+            // 移除所有心情类
+            customerCard.classList.remove('customer-card-happy', 'customer-card-satisfied', 
+                                         'customer-card-normal', 'customer-card-unhappy', 'customer-card-angry');
+            
+            // 移除所有心情文本类
+            moodText.classList.remove('mood-text-happy', 'mood-text-satisfied', 
+                                     'mood-text-normal', 'mood-text-unhappy', 'mood-text-angry');
+            
+            // 根据心情等级设置样式
+            switch(gameState.moodLevel) {
+                case 4: // 开心
+                    moodEmoji.textContent = '😊';
+                    moodText.textContent = '开心';
+                    moodText.classList.add('mood-text-happy');
+                    customerCard.classList.add('customer-card-happy');
+                    break;
+                case 3: // 满意
+                    moodEmoji.textContent = '🙂';
+                    moodText.textContent = '满意';
+                    moodText.classList.add('mood-text-satisfied');
+                    customerCard.classList.add('customer-card-satisfied');
+                    break;
+                case 2: // 一般
+                    moodEmoji.textContent = '😐';
+                    moodText.textContent = '一般';
+                    moodText.classList.add('mood-text-normal');
+                    customerCard.classList.add('customer-card-normal');
+                    break;
+                case 1: // 不开心
+                    moodEmoji.textContent = '😞';
+                    moodText.textContent = '不开心';
+                    moodText.classList.add('mood-text-unhappy');
+                    customerCard.classList.add('customer-card-unhappy');
+                    break;
+                case 0: // 愤怒
+                    moodEmoji.textContent = '😠';
+                    moodText.textContent = '愤怒';
+                    moodText.classList.add('mood-text-angry');
+                    customerCard.classList.add('customer-card-angry');
+                    break;
+            }
+        }
+
+        // 更新统计信息
+        function updateStats() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('level').textContent = `等级: ${gameState.level}`;
+            document.getElementById('levelBadge').textContent = gameState.level;
+            document.getElementById('completedOrders').textContent = gameState.completedOrders;
+            document.getElementById('streakCount').textContent = gameState.streakCount;
+            
+            // 计算正确率
+            const accuracy = gameState.completedOrders > 0 
+                ? Math.round((gameState.correctOrders / gameState.completedOrders) * 100) 
+                : 0;
+            document.getElementById('accuracyRate').textContent = `${accuracy}%`;
+            
+            // 更新解锁食材数
+            document.getElementById('unlockedIngredients').textContent = `${gameState.unlockedIngredients}/11`;
+        }
+
+        // 显示反馈信息
+        function showFeedback(message) {
+            const feedbackEl = document.getElementById('feedback');
+            feedbackEl.textContent = message;
+            
+            // 添加动画效果
+            feedbackEl.style.animation = 'bounce 0.5s ease';
+            setTimeout(() => {
+                feedbackEl.style.animation = '';
+            }, 500);
+        }
+
+        // 检查升级
+        function checkLevelUp() {
+            const requiredScore = gameState.level * GAME_CONFIG.levelUpScore;
+            if (gameState.score >= requiredScore) {
+                gameState.level++;
+                showLevelUpPopup();
+                
+                // 检查是否解锁新食材
+                checkIngredientUnlock();
+            }
+        }
+
+        // 显示升级弹窗
+        function showLevelUpPopup() {
+            document.getElementById('levelUpMessage').textContent = `你已升级到${gameState.level}级！`;
+            document.getElementById('levelUpOverlay').style.display = 'block';
+            document.getElementById('levelUpPopup').style.display = 'block';
+            
+            // 更新等级显示
+            updateStats();
+        }
+
+        // 关闭升级弹窗
+        function closeLevelUpPopup() {
+            document.getElementById('levelUpOverlay').style.display = 'none';
+            document.getElementById('levelUpPopup').style.display = 'none';
+            showFeedback(`恭喜升级到${gameState.level}级！`);
+        }
+
+        // 检查食材解锁
+        function checkIngredientUnlock() {
+            // 解锁培根（3级）
+            if (gameState.level >= GAME_CONFIG.unlockLevels.培根 && 
+                document.getElementById('baconBtn').classList.contains('locked')) {
+                document.getElementById('baconBtn').classList.remove('locked');
+                gameState.unlockedIngredients++;
+                showFeedback('解锁新食材：培根！');
+            }
+            
+            // 解锁鸡蛋（5级）
+            if (gameState.level >= GAME_CONFIG.unlockLevels.鸡蛋 && 
+                document.getElementById('eggBtn').classList.contains('locked')) {
+                document.getElementById('eggBtn').classList.remove('locked');
+                gameState.unlockedIngredients++;
+                showFeedback('解锁新食材：鸡蛋！');
+            }
+            
+            // 解锁辣椒（7级）
+            if (gameState.level >= GAME_CONFIG.unlockLevels.辣椒 && 
+                document.getElementById('chiliBtn').classList.contains('locked')) {
+                document.getElementById('chiliBtn').classList.remove('locked');
+                gameState.unlockedIngredients++;
+                showFeedback('解锁新食材：辣椒！');
+            }
+            
+            // 更新绑定事件（新解锁的食材）
+            bindIngredientEvents();
+        }
+
+        // 检查成就解锁
+        function checkAchievements() {
+            // 汉堡新手：完成第一个订单
+            if (gameState.completedOrders >= 1) {
+                unlockAchievement('achievement1', '🏆');
+            }
+            
+            // 连续命中：连续5次正确
+            if (gameState.streakCount >= 5) {
+                unlockAchievement('achievement2', '🔥');
+            }
+            
+            // 升级达人：升级到5级
+            if (gameState.level >= 5) {
+                unlockAchievement('achievement3', '⭐');
+            }
+            
+            // 满分百次：累计100分
+            if (gameState.score >= 100) {
+                unlockAchievement('achievement4', '💯');
+            }
+            
+            // 解锁大师：解锁所有食材
+            if (gameState.unlockedIngredients >= 11) {
+                unlockAchievement('achievement5', '🔓');
+            }
+        }
+
+        // 解锁成就
+        function unlockAchievement(achievementId, icon) {
+            const achievement = document.getElementById(achievementId);
+            if (achievement.classList.contains('locked')) {
+                achievement.classList.remove('locked');
+                achievement.classList.add('unlocked');
+                achievement.querySelector('.achievement-icon').textContent = icon;
+                showFeedback(`解锁成就：${achievement.querySelector('.achievement-name').textContent}`);
+            }
+        }
+
+        // 下一个订单
+        function nextOrder() {
+            // 重置汉堡
+            gameState.currentBurger = [];
+            updateCurrentBurgerDisplay();
+            
+            // 重置计时器
+            gameState.timeRemaining = GAME_CONFIG.baseTime;
+            updateTimer();
+            startTimer();
+            
+            // 重置心情
+            gameState.moodLevel = 4;
+            updateMoodDisplay();
+            
+            // 随机生成新顾客（这里简化处理，实际可以随机不同顾客）
+            const customers = [
+                { name: '老王', avatar: '👨', specialRequest: '不要洋葱', difficulty: 2 },
+                { name: '小红', avatar: '👩', specialRequest: '', difficulty: 1 },
+                { name: '小李', avatar: '🧑', specialRequest: '多加芝士', difficulty: 3 }
+            ];
+            
+            // 随机选择顾客
+            const randomIndex = Math.floor(Math.random() * customers.length);
+            gameState.currentCustomer = customers[randomIndex];
+            
+            // 更新顾客显示
+            document.getElementById('customerAvatar').textContent = gameState.currentCustomer.avatar;
+            document.getElementById('customer').textContent = gameState.currentCustomer.name;
+            
+            // 更新特殊要求
+            const specialRequestEl = document.getElementById('specialRequest');
+            if (gameState.currentCustomer.specialRequest) {
+                specialRequestEl.textContent = gameState.currentCustomer.specialRequest;
+                specialRequestEl.style.display = 'block';
+            } else {
+                specialRequestEl.style.display = 'none';
+            }
+            
+            // 更新难度指示器
+            const difficultyDots = document.querySelectorAll('.difficulty-dot');
+            difficultyDots.forEach((dot, index) => {
+                if (index < gameState.currentCustomer.difficulty) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+            
+            // 生成新的目标汉堡
+            generateTargetBurger();
+            
+            showFeedback('新的订单来了！');
+        }
+
+        // 生成目标汉堡
+        function generateTargetBurger() {
+            // 根据难度生成不同复杂度的汉堡
+            const baseIngredients = ['面包底', '牛肉饼', '面包顶'];
+            const extraIngredients = ['生菜', '番茄', '芝士', '洋葱', '酸黄瓜'];
+            
+            // 基础汉堡
+            gameState.targetBurger = [...baseIngredients];
+            
+            // 根据难度添加额外食材
+            const difficulty = gameState.currentCustomer.difficulty;
+            const extraCount = difficulty; // 难度1加1个，难度2加2个，难度3加3个
+            
+            // 随机添加额外食材
+            for (let i = 0; i < extraCount; i++) {
+                const randomIndex = Math.floor(Math.random() * extraIngredients.length);
+                const randomIngredient = extraIngredients[randomIndex];
+                
+                // 插入到牛肉饼和面包顶之间
+                gameState.targetBurger.splice(-1, 0, randomIngredient);
+                
+                // 如果有特殊要求，移除对应的食材
+                if (gameState.currentCustomer.specialRequest === '不要洋葱') {
+                    gameState.targetBurger = gameState.targetBurger.filter(ing => ing !== '洋葱');
+                }
+            }
+            
+            // 更新目标汉堡显示
+            updateTargetBurgerDisplay();
+        }
+
+        // 更新目标汉堡显示
+        function updateTargetBurgerDisplay() {
+            const targetBurgerStack = document.getElementById('targetBurgerStack');
+            
+            // 清空当前显示
+            targetBurgerStack.innerHTML = '';
+            
+            // 逆序显示（面包底在最下面）
+            const reversedBurger = [...gameState.targetBurger].reverse();
+            
+            // 添加汉堡层
+            reversedBurger.forEach(ingredient => {
+                const layerClass = getLayerClass(ingredient);
+                const layerEl = document.createElement('div');
+                layerEl.className = `burger-layer ${layerClass}`;
+                layerEl.textContent = ingredient;
+                targetBurgerStack.appendChild(layerEl);
             });
         }
 
-        // 清空记录
-        function clearRecords() {
-            if (!confirm("确定要清空所有中奖记录吗？")) return;
-            winners = [];
-            refreshWinnerTable();
+        // 重新开始游戏
+        function restartGame() {
+            // 重置游戏状态
+            gameState = {
+                score: 0,
+                level: 1,
+                completedOrders: 0,
+                correctOrders: 0,
+                streakCount: 0,
+                hintCount: GAME_CONFIG.initialHintCount,
+                unlockedIngredients: 8,
+                currentBurger: [],
+                targetBurger: ['面包底', '牛肉饼', '生菜', '番茄', '芝士', '面包顶'],
+                timeRemaining: GAME_CONFIG.baseTime,
+                timerInterval: null,
+                moodLevel: 4,
+                currentCustomer: {
+                    name: '老王',
+                    avatar: '👨',
+                    specialRequest: '不要洋葱',
+                    difficulty: 2
+                }
+            };
+            
+            // 重置食材锁定状态
+            document.getElementById('baconBtn').classList.add('locked');
+            document.getElementById('eggBtn').classList.add('locked');
+            document.getElementById('chiliBtn').classList.add('locked');
+            
+            // 重置成就
+            document.querySelectorAll('.achievement-item').forEach(item => {
+                item.classList.remove('unlocked');
+                item.classList.add('locked');
+                item.querySelector('.achievement-icon').textContent = '🔒';
+            });
+            
+            // 重新初始化
+            initGame();
+            updateStats();
+            updateCurrentBurgerDisplay();
+            updateTargetBurgerDisplay();
+            showFeedback('游戏已重新开始！');
         }
 
-        // 导出中奖记录
-        function exportWinners() {
-            if (winners.length === 0) {
-                alert("暂无中奖记录可导出！");
-                return;
-            }
-
-            const csvContent = "奖品,获奖者,分组,中奖时间\n" + winners.map(w => w.join(",")).join("\n");
-            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `中奖记录_${formatTime().replace(/\s|:|-/g, "")}.csv`);
-            link.style.display = "none";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // 分组筛选事件
-        document.getElementById("groupFilter").addEventListener("change", function() {
-            currentGroup = this.value;
-            refreshPersonList();
-        });
+        // 页面加载完成后初始化游戏
+        window.addEventListener('DOMContentLoaded', initGame);
     </script>
 </body>
 </html>
